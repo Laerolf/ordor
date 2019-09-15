@@ -1,4 +1,4 @@
-# ordor
+# Ordor
 
 ## Project setup
 ```
