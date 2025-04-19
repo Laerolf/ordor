@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Order, OrderItem } from '@/types'
+import type { Order, OrderItem, OrderHistory } from '@/types'
 import { useMenuStore } from './menu'
+import { useOrderHistoryStore } from './orderHistory'
 
 export const useOrderStore = defineStore('order', () => {
   const menuStore = useMenuStore()
@@ -101,6 +102,25 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
+  const generateOrderId = () => {
+    return Date.now().toString()
+  }
+
+  const completeOrder = () => {
+    const orderHistoryStore = useOrderHistoryStore()
+    const orderHistory: OrderHistory = {
+      id: generateOrderId(),
+      items: [...currentOrder.value?.items || []],
+      totalAmount: currentOrder.value?.totalAmount || 0,
+      status: 'completed',
+      createdAt: new Date().toISOString(),
+      completedAt: new Date().toISOString()
+    }
+    
+    orderHistoryStore.addOrderHistory(orderHistory)
+    currentOrder.value = null
+  }
+
   return {
     currentOrder,
     orderHistory,
@@ -109,6 +129,7 @@ export const useOrderStore = defineStore('order', () => {
     addItemToOrder,
     removeItemFromOrder,
     updateItemQuantity,
-    submitOrder
+    submitOrder,
+    completeOrder
   }
 }) 

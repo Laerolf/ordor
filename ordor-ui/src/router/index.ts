@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import OrderHistoryView from '@/views/OrderHistoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,6 +62,11 @@ const router = createRouter({
           component: () => import('../views/admin/ReportsView.vue')
         }
       ]
+    },
+    {
+      path: '/order-history',
+      name: 'order-history',
+      component: OrderHistoryView
     }
   ]
 })

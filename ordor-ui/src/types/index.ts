@@ -53,4 +53,13 @@ export interface InventoryItem {
   minimumQuantity: number
   supplier: string
   lastRestocked: Date
+}
+
+export interface OrderHistory {
+  id: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: 'completed' | 'cancelled';
+  createdAt: string;
+  completedAt?: string;
 } 
