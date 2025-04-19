@@ -7,6 +7,16 @@ const router = createRouter({
       path: '/',
       name: 'menu',
       component: () => import('@/views/MenuView.vue')
+    },
+    {
+      path: '/order/:tableId',
+      name: 'order',
+      component: () => import('@/views/OrderView.vue')
+    },
+    {
+      path: '/management',
+      name: 'management',
+      component: () => import('@/views/OrderManagementView.vue')
     }
   ]
 })
