@@ -7,29 +7,15 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="name">商品名</label>
-          <input
-            id="name"
-            v-model="newItem.name"
-            type="text"
-            required
-          >
+          <input id="name" v-model="newItem.name" type="text" required />
         </div>
         <div class="form-group">
           <label for="price">価格</label>
-          <input
-            id="price"
-            v-model.number="newItem.price"
-            type="number"
-            required
-          >
+          <input id="price" v-model.number="newItem.price" type="number" required />
         </div>
         <div class="form-group">
           <label for="category">カテゴリー</label>
-          <select
-            id="category"
-            v-model="newItem.category"
-            required
-          >
+          <select id="category" v-model="newItem.category" required>
             <option v-for="category in categories" :key="category" :value="category">
               {{ getCategoryName(category) }}
             </option>
@@ -37,11 +23,7 @@
         </div>
         <div class="form-group">
           <label for="description">説明</label>
-          <textarea
-            id="description"
-            v-model="newItem.description"
-            rows="3"
-          ></textarea>
+          <textarea id="description" v-model="newItem.description" rows="3"></textarea>
         </div>
         <button type="submit">追加</button>
       </form>
@@ -50,23 +32,14 @@
     <div class="menu-list">
       <h2>メニュー一覧</h2>
       <div class="menu-items">
-        <div
-          v-for="item in menuItems"
-          :key="item.id"
-          class="menu-item"
-        >
+        <div v-for="item in menuItems" :key="item.id" class="menu-item">
           <div class="item-info">
             <h3>{{ item.name }}</h3>
             <p class="price">¥{{ item.price.toLocaleString() }}</p>
             <p class="category">{{ getCategoryName(item.category) }}</p>
             <p class="description">{{ item.description }}</p>
           </div>
-          <button
-            class="delete-button"
-            @click="handleDelete(item.id)"
-          >
-            削除
-          </button>
+          <button class="delete-button" @click="handleDelete(item.id)">削除</button>
         </div>
       </div>
     </div>
@@ -74,21 +47,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useMenuStore } from '@/stores/menuStore';
-import type { MenuItem } from '@/types/menu';
-import { MenuCategory } from '@/types/menu';
+import { ref, onMounted } from 'vue'
+import { useMenuStore } from '@/stores/menuStore'
+import type { MenuItem } from '@/types/menu'
+import { MenuCategory } from '@/types/menu'
 
-const menuStore = useMenuStore();
-const menuItems = ref<MenuItem[]>([]);
-const categories = Object.values(MenuCategory);
+const menuStore = useMenuStore()
+const menuItems = ref<MenuItem[]>([])
+const categories = Object.values(MenuCategory)
 
 const newItem = ref<Omit<MenuItem, 'id'>>({
   name: '',
   price: 0,
   category: MenuCategory.MAIN,
   description: ''
-});
+})
 
 const getCategoryName = (category: MenuCategory): string => {
   const names: Record<MenuCategory, string> = {
@@ -96,34 +69,34 @@ const getCategoryName = (category: MenuCategory): string => {
     [MenuCategory.MAIN]: 'メイン',
     [MenuCategory.DESSERT]: 'デザート',
     [MenuCategory.DRINK]: 'ドリンク'
-  };
-  return names[category];
-};
+  }
+  return names[category]
+}
 
 const handleSubmit = () => {
   menuStore.addMenuItem({
     ...newItem.value,
     id: crypto.randomUUID()
-  });
+  })
   newItem.value = {
     name: '',
     price: 0,
     category: MenuCategory.MAIN,
     description: ''
-  };
-};
+  }
+}
 
 const handleDelete = (id: string) => {
-  menuStore.removeMenuItem(id);
-};
+  menuStore.removeMenuItem(id)
+}
 
 onMounted(() => {
-  menuStore.setMockData();
-  menuItems.value = menuStore.items;
-});
+  menuStore.setMockData()
+  menuItems.value = menuStore.items
+})
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .menu-management {
   max-width: 1200px;
   margin: 0 auto;
@@ -157,16 +130,16 @@ textarea {
 }
 
 button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
 
-button:hover {
-  background-color: #45a049;
+  &:hover {
+    background-color: #45a049;
+  }
 }
 
 .menu-items {
@@ -192,7 +165,7 @@ button:hover {
 .price {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .category {
@@ -208,9 +181,9 @@ button:hover {
 .delete-button {
   background-color: #f44336;
   margin-left: 1rem;
-}
 
-.delete-button:hover {
-  background-color: #da190b;
+  &:hover {
+    background-color: #da190b;
+  }
 }
-</style> 
+</style>

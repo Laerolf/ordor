@@ -1,40 +1,40 @@
-import { defineStore } from 'pinia';
-import type { MenuItem } from '@/types/menu';
-import { MenuCategory } from '@/types/menu';
+import { defineStore } from 'pinia'
+import type { MenuItem } from '@/types/menu'
+import { MenuCategory } from '@/types/menu'
 
 interface MenuState {
-  items: MenuItem[];
-  selectedCategory: MenuCategory | null;
+  items: MenuItem[]
+  selectedCategory: MenuCategory | null
 }
 
 export const useMenuStore = defineStore('menu', {
   state: (): MenuState => ({
     items: [],
-    selectedCategory: null,
+    selectedCategory: null
   }),
 
   getters: {
     filteredItems: (state: MenuState) => {
-      if (!state.selectedCategory) return state.items;
-      return state.items.filter(item => item.category === state.selectedCategory);
+      if (!state.selectedCategory) return state.items
+      return state.items.filter((item) => item.category === state.selectedCategory)
     },
-    
+
     categories: () => {
-      return Object.values(MenuCategory);
+      return Object.values(MenuCategory)
     }
   },
 
   actions: {
     setSelectedCategory(category: MenuCategory | null) {
-      this.selectedCategory = category;
+      this.selectedCategory = category
     },
 
     addMenuItem(item: MenuItem) {
-      this.items.push(item);
+      this.items.push(item)
     },
 
     removeMenuItem(id: string) {
-      this.items = this.items.filter(item => item.id !== id);
+      this.items = this.items.filter((item) => item.id !== id)
     },
 
     // 仮のデータを設定するメソッド（後でAPIから取得するように変更予定）
@@ -45,16 +45,16 @@ export const useMenuStore = defineStore('menu', {
           name: 'シーザーサラダ',
           price: 800,
           category: MenuCategory.APPETIZER,
-          description: '新鮮なレタスとパルメザンチーズ、クラッカーをトッピング',
+          description: '新鮮なレタスとパルメザンチーズ、クラッカーをトッピング'
         },
         {
           id: '2',
           name: 'ステーキ',
           price: 2800,
           category: MenuCategory.MAIN,
-          description: '厳選されたビーフを炭火で焼き上げ',
-        },
-      ];
+          description: '厳選されたビーフを炭火で焼き上げ'
+        }
+      ]
     }
   }
-}); 
+})

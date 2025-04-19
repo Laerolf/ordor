@@ -1,18 +1,18 @@
-import { MenuItem } from './menu';
+import { MenuItem } from './menu'
 
 export interface OrderItem {
-  menuItem: MenuItem;
-  quantity: number;
-  specialRequests?: string;
+  menuItem: MenuItem
+  quantity: number
+  specialRequests?: string
 }
 
 export interface Order {
-  id: string;
-  tableNumber: number;
-  items: OrderItem[];
-  createdAt: Date;
-  status: OrderStatus;
-  totalAmount: number;
+  id: string
+  tableNumber: number
+  items: OrderItem[]
+  createdAt: Date
+  status: OrderStatus
+  totalAmount: number
 }
 
 export enum OrderStatus {
@@ -20,4 +20,4 @@ export enum OrderStatus {
   PREPARING = 'PREPARING',
   SERVED = 'SERVED',
   PAID = 'PAID'
-} 
+}

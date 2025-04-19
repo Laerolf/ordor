@@ -1,7 +1,7 @@
 <template>
   <div class="order-view">
     <h1>注文カート</h1>
-    
+
     <div v-if="!orderStore.currentTableNumber" class="table-selection">
       <h2>テーブル番号を選択</h2>
       <div class="table-input">
@@ -10,40 +10,38 @@
           type="text"
           placeholder="テーブル番号を入力"
           @keyup.enter="selectTable"
-        >
+        />
         <button @click="selectTable">選択</button>
       </div>
     </div>
-    
+
     <div v-else class="order-content">
       <div class="table-info">
         <h2>テーブル {{ orderStore.currentTableNumber }}</h2>
         <button class="change-table" @click="changeTable">テーブルを変更</button>
       </div>
-      
+
       <div v-if="currentTableItems.length === 0" class="empty-cart">
         <p>カートに商品がありません</p>
         <router-link to="/" class="browse-menu">メニューを見る</router-link>
       </div>
-      
+
       <div v-else class="cart-items">
         <div v-for="item in currentTableItems" :key="item.menuItem.id" class="cart-item">
           <div class="item-info">
             <h3>{{ item.menuItem.name }}</h3>
             <p class="price">¥{{ item.menuItem.price.toLocaleString() }}</p>
           </div>
-          
+
           <div class="quantity-control">
             <button @click="updateQuantity(item.menuItem.id, item.quantity - 1)">-</button>
             <span>{{ item.quantity }}</span>
             <button @click="updateQuantity(item.menuItem.id, item.quantity + 1)">+</button>
           </div>
-          
-          <button class="remove-button" @click="removeItem(item.menuItem.id)">
-            削除
-          </button>
+
+          <button class="remove-button" @click="removeItem(item.menuItem.id)">削除</button>
         </div>
-        
+
         <div class="order-summary">
           <div class="summary-row">
             <span>合計数量:</span>
@@ -54,11 +52,9 @@
             <span>¥{{ orderStore.totalAmount.toLocaleString() }}</span>
           </div>
         </div>
-        
+
         <div class="order-actions">
-          <button class="submit-order" @click="submitOrder">
-            注文を確定
-          </button>
+          <button class="submit-order" @click="submitOrder">注文を確定</button>
         </div>
       </div>
     </div>
@@ -66,45 +62,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useOrderStore } from '@/stores/orderStore';
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useOrderStore } from '@/stores/orderStore'
 
-const router = useRouter();
-const orderStore = useOrderStore();
-const tableNumber = ref('');
+const router = useRouter()
+const orderStore = useOrderStore()
+const tableNumber = ref('')
 
 const currentTableItems = computed(() => {
-  if (!orderStore.currentTableNumber) return [];
-  return orderStore.itemsByTable[orderStore.currentTableNumber] || [];
-});
+  if (!orderStore.currentTableNumber) return []
+  return orderStore.itemsByTable[orderStore.currentTableNumber] || []
+})
 
 const selectTable = () => {
   if (tableNumber.value.trim()) {
-    orderStore.setTableNumber(tableNumber.value.trim());
+    orderStore.setTableNumber(tableNumber.value.trim())
   }
-};
+}
 
 const changeTable = () => {
-  orderStore.setTableNumber('');
-  tableNumber.value = '';
-};
+  orderStore.setTableNumber('')
+  tableNumber.value = ''
+}
 
 const updateQuantity = (menuItemId: string, newQuantity: number) => {
-  if (newQuantity < 1) return;
-  orderStore.updateQuantity(menuItemId, orderStore.currentTableNumber!, newQuantity);
-};
+  if (newQuantity < 1) return
+  orderStore.updateQuantity(menuItemId, orderStore.currentTableNumber!, newQuantity)
+}
 
 const removeItem = (menuItemId: string) => {
-  orderStore.removeItem(menuItemId, orderStore.currentTableNumber!);
-};
+  orderStore.removeItem(menuItemId, orderStore.currentTableNumber!)
+}
 
 const submitOrder = () => {
-  if (currentTableItems.value.length === 0) return;
-  
-  orderStore.submitOrder(orderStore.currentTableNumber!);
-  router.push('/');
-};
+  if (currentTableItems.value.length === 0) return
+
+  orderStore.submitOrder(orderStore.currentTableNumber!)
+  router.push('/')
+}
 </script>
 
 <style scoped>
@@ -166,7 +162,7 @@ h1 {
   display: inline-block;
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   text-decoration: none;
   border-radius: 4px;
@@ -244,7 +240,7 @@ h1 {
 }
 
 .submit-order {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 1rem 2rem;
   font-size: 1.2rem;
@@ -262,4 +258,4 @@ button {
 button:hover {
   opacity: 0.9;
 }
-</style> 
+</style>

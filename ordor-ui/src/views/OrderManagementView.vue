@@ -32,30 +32,30 @@
 </template>
 
 <script setup lang="ts">
-import { useOrderStore } from '@/stores/orderStore';
-import { OrderStatus } from '@/types/order';
+import { useOrderStore } from '@/stores/orderStore'
+import { OrderStatus } from '@/types/order'
 
-const orderStore = useOrderStore();
-const activeOrders = orderStore.activeOrders;
-const orderStatuses = Object.values(OrderStatus);
+const orderStore = useOrderStore()
+const activeOrders = orderStore.activeOrders
+const orderStatuses = Object.values(OrderStatus)
 
 const formatDate = (date: Date) => {
-  return new Date(date).toLocaleString('ja-JP');
-};
+  return new Date(date).toLocaleString('ja-JP')
+}
 
 const getStatusName = (status: OrderStatus): string => {
   const names: Record<OrderStatus, string> = {
     [OrderStatus.NEW]: '新規',
     [OrderStatus.PREPARING]: '準備中',
     [OrderStatus.SERVED]: '提供済み',
-    [OrderStatus.PAID]: '会計済み',
-  };
-  return names[status];
-};
+    [OrderStatus.PAID]: '会計済み'
+  }
+  return names[status]
+}
 
 const updateStatus = (orderId: string, status: OrderStatus) => {
-  orderStore.updateOrderStatus(orderId, status);
-};
+  orderStore.updateOrderStatus(orderId, status)
+}
 </script>
 
 <style scoped>
@@ -125,6 +125,6 @@ select {
 
 select:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
 }
-</style> 
+</style>
