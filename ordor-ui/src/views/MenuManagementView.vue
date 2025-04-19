@@ -30,10 +30,9 @@
             v-model="newItem.category"
             required
           >
-            <option value="appetizer">前菜</option>
-            <option value="main">メイン</option>
-            <option value="dessert">デザート</option>
-            <option value="drink">ドリンク</option>
+            <option v-for="category in categories" :key="category" :value="category">
+              {{ getCategoryName(category) }}
+            </option>
           </select>
         </div>
         <div class="form-group">
@@ -82,6 +81,7 @@ import { MenuCategory } from '@/types/menu';
 
 const menuStore = useMenuStore();
 const menuItems = ref<MenuItem[]>([]);
+const categories = Object.values(MenuCategory);
 
 const newItem = ref<Omit<MenuItem, 'id'>>({
   name: '',
@@ -91,13 +91,13 @@ const newItem = ref<Omit<MenuItem, 'id'>>({
 });
 
 const getCategoryName = (category: MenuCategory): string => {
-  const categories: Record<MenuCategory, string> = {
+  const names: Record<MenuCategory, string> = {
     [MenuCategory.APPETIZER]: '前菜',
     [MenuCategory.MAIN]: 'メイン',
     [MenuCategory.DESSERT]: 'デザート',
     [MenuCategory.DRINK]: 'ドリンク'
   };
-  return categories[category];
+  return names[category];
 };
 
 const handleSubmit = () => {
