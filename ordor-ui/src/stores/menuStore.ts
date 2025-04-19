@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { MenuItem, MenuCategory } from '@/types/menu';
+import type { MenuItem } from '@/types/menu';
+import { MenuCategory } from '@/types/menu';
 
 interface MenuState {
   items: MenuItem[];
@@ -28,6 +29,14 @@ export const useMenuStore = defineStore('menu', {
       this.selectedCategory = category;
     },
 
+    addMenuItem(item: MenuItem) {
+      this.items.push(item);
+    },
+
+    removeMenuItem(id: string) {
+      this.items = this.items.filter(item => item.id !== id);
+    },
+
     // 仮のデータを設定するメソッド（後でAPIから取得するように変更予定）
     setMockData() {
       this.items = [
@@ -45,7 +54,6 @@ export const useMenuStore = defineStore('menu', {
           category: MenuCategory.MAIN,
           description: '厳選されたビーフを炭火で焼き上げ',
         },
-        // 他のメニュー項目も追加可能
       ];
     }
   }
