@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { MenuItem } from '@/types'
+import type { MenuItem } from '@/types/menu'
 import { useOrderStore } from '@/stores/order'
 
 const props = defineProps<{
@@ -9,10 +9,15 @@ const props = defineProps<{
 
 const orderStore = useOrderStore()
 const quantity = ref(1)
+const showDetails = ref(false)
 const specialInstructions = ref('')
 
-const addToOrder = () => {
-  orderStore.addItemToOrder(props.item.id, quantity.value, specialInstructions.value)
+const addToCart = () => {
+  orderStore.addToCart({
+    ...props.item,
+    quantity: quantity.value,
+    specialInstructions: specialInstructions.value || undefined
+  })
   quantity.value = 1
   specialInstructions.value = ''
 }
@@ -20,44 +25,52 @@ const addToOrder = () => {
 
 <template>
   <div class="menu-item-card">
-    <div class="menu-item-image" v-if="item.imageUrl">
-      <img :src="item.imageUrl" :alt="item.name">
-    </div>
-    <div class="menu-item-content">
+    <img :src="item.imageUrl" :alt="item.name" class="item-image" />
+    
+    <div class="item-content">
       <h3>{{ item.name }}</h3>
       <p class="description">{{ item.description }}</p>
-      <p class="price">{{ item.price.toLocaleString('ja-JP') }}円</p>
+      <p class="price">¥{{ item.price.toLocaleString() }}</p>
       
-      <div class="allergens" v-if="item.allergens.length">
-        <span class="allergen-tag" v-for="allergen in item.allergens" :key="allergen">
-          {{ allergen }}
-        </span>
+      <button 
+        class="details-button"
+        @click="showDetails = !showDetails"
+      >
+        {{ showDetails ? '詳細を閉じる' : '詳細を見る' }}
+      </button>
+
+      <div v-if="showDetails" class="details">
+        <p v-if="item.allergens.length > 0" class="allergens">
+          <strong>アレルギー:</strong> {{ item.allergens.join(', ') }}
+        </p>
+        <p class="preparation-time">
+          <strong>調理時間:</strong> 約{{ item.preparationTime }}分
+        </p>
       </div>
 
       <div class="order-controls">
         <div class="quantity-control">
-          <label for="quantity">数量:</label>
-          <input
-            type="number"
-            id="quantity"
-            v-model="quantity"
-            min="1"
-            max="10"
-          >
+          <button 
+            @click="quantity > 1 ? quantity-- : null"
+            :disabled="quantity <= 1"
+          >-</button>
+          <span>{{ quantity }}</span>
+          <button @click="quantity++">+</button>
         </div>
 
-        <div class="special-instructions">
-          <label for="instructions">特記事項:</label>
-          <input
-            type="text"
-            id="instructions"
-            v-model="specialInstructions"
-            placeholder="アレルギーや調理方法のご要望"
-          >
-        </div>
+        <textarea
+          v-model="specialInstructions"
+          placeholder="特別な要望があればご記入ください"
+          rows="2"
+          class="special-instructions"
+        ></textarea>
 
-        <button @click="addToOrder" class="add-to-order">
-          注文に追加
+        <button 
+          class="add-to-cart"
+          @click="addToCart"
+          :disabled="!item.isAvailable"
+        >
+          {{ item.isAvailable ? 'カートに追加' : '現在ご注文いただけません' }}
         </button>
       </div>
     </div>
@@ -66,10 +79,9 @@ const addToOrder = () => {
 
 <style scoped lang="scss">
 .menu-item-card {
-  border: 1px solid #e2e8f0;
+  background: white;
   border-radius: 8px;
   overflow: hidden;
-  background: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s;
 
@@ -77,102 +89,120 @@ const addToOrder = () => {
     transform: translateY(-2px);
   }
 
-  .menu-item-image {
+  .item-image {
     width: 100%;
     height: 200px;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    object-fit: cover;
   }
 
-  .menu-item-content {
+  .item-content {
     padding: 1rem;
 
     h3 {
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.5rem;
       font-size: 1.25rem;
       color: #2d3748;
     }
 
     .description {
-      margin: 0 0 0.5rem 0;
-      color: #718096;
-      font-size: 0.875rem;
+      color: #4a5568;
+      margin-bottom: 1rem;
     }
 
     .price {
-      margin: 0 0 1rem 0;
-      font-size: 1.125rem;
+      font-size: 1.25rem;
       font-weight: bold;
       color: #2d3748;
+      margin-bottom: 1rem;
     }
 
-    .allergens {
+    .details-button {
+      background: none;
+      border: none;
+      color: #4299e1;
+      cursor: pointer;
+      padding: 0;
       margin-bottom: 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
 
-      .allergen-tag {
-        padding: 0.25rem 0.5rem;
-        background-color: #f7fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        font-size: 0.75rem;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    .details {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: #f7fafc;
+      border-radius: 4px;
+
+      p {
+        margin: 0.5rem 0;
         color: #4a5568;
+
+        strong {
+          color: #2d3748;
+        }
       }
     }
 
     .order-controls {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-
-      .quantity-control,
-      .special-instructions {
+      .quantity-control {
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
 
-        label {
-          font-size: 0.875rem;
-          color: #4a5568;
-        }
-
-        input {
-          padding: 0.5rem;
+        button {
+          width: 32px;
+          height: 32px;
           border: 1px solid #e2e8f0;
           border-radius: 4px;
-          font-size: 1rem;
+          background: white;
+          color: #2d3748;
+          cursor: pointer;
 
-          &:focus {
-            outline: none;
-            border-color: #4299e1;
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
           }
+
+          &:hover:not(:disabled) {
+            background: #f7fafc;
+          }
+        }
+
+        span {
+          min-width: 32px;
+          text-align: center;
         }
       }
 
-      .add-to-order {
+      .special-instructions {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        resize: vertical;
+      }
+
+      .add-to-cart {
+        width: 100%;
         padding: 0.75rem;
-        background-color: #4299e1;
+        background: #4299e1;
         color: white;
         border: none;
         border-radius: 4px;
-        font-size: 1rem;
-        font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s;
 
-        &:hover {
-          background-color: #3182ce;
+        &:hover:not(:disabled) {
+          background: #3182ce;
         }
 
-        &:active {
-          background-color: #2c5282;
+        &:disabled {
+          background: #cbd5e0;
+          cursor: not-allowed;
         }
       }
     }

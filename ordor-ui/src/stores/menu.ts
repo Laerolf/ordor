@@ -1,60 +1,81 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { MenuItem } from '@/types'
+import type { MenuItem, MenuCategory } from '@/types/menu'
+
+// スタブデータ
+const MOCK_MENU_ITEMS: MenuItem[] = [
+  {
+    id: '1',
+    name: 'ハンバーガー',
+    description: '新鮮な野菜とジューシーなパティ',
+    price: 500,
+    category: 'バーガー',
+    imageUrl: '/images/hamburger.jpg',
+    allergens: ['小麦', '乳'],
+    isAvailable: true,
+    preparationTime: 10
+  },
+  {
+    id: '2',
+    name: 'フライドポテト',
+    description: 'カリカリのポテト',
+    price: 300,
+    category: 'サイド',
+    imageUrl: '/images/fries.jpg',
+    allergens: [],
+    isAvailable: true,
+    preparationTime: 5
+  }
+]
+
+const MOCK_CATEGORIES: MenuCategory[] = [
+  { id: '1', name: 'バーガー', description: 'ジューシーなバーガー各種' },
+  { id: '2', name: 'サイド', description: 'サイドメニュー' },
+  { id: '3', name: 'ドリンク', description: '各種ドリンク' }
+]
 
 export const useMenuStore = defineStore('menu', () => {
   const menuItems = ref<MenuItem[]>([])
-  const categories = ref<string[]>([])
+  const categories = ref<MenuCategory[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const searchQuery = ref('')
 
-  const availableMenuItems = computed(() => 
-    menuItems.value.filter(item => item.isAvailable)
-  )
+  // 利用可能なメニュー項目
+  const availableMenuItems = computed(() => {
+    return menuItems.value.filter(item => item.isAvailable)
+  })
 
-  const getMenuItemsByCategory = computed(() => (category: string) => 
-    availableMenuItems.value.filter(item => item.category === category)
-  )
+  // 検索結果
+  const searchResults = computed(() => {
+    if (!searchQuery.value) return availableMenuItems.value
+    
+    const query = searchQuery.value.toLowerCase()
+    return availableMenuItems.value.filter(item => 
+      item.name.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query)
+    )
+  })
 
-  const getMenuItemById = (id: string) => 
-    menuItems.value.find(item => item.id === id)
+  // カテゴリーでフィルタリング
+  const getMenuItemsByCategory = (category: string) => {
+    return availableMenuItems.value.filter(item => item.category === category)
+  }
 
+  // メニュー項目の取得（スタブ）
   const fetchMenuItems = async () => {
     isLoading.value = true
     error.value = null
+    
     try {
-      // TODO: API呼び出しを実装
-      // const response = await fetch('/api/menu')
-      // menuItems.value = await response.json()
-      // categories.value = [...new Set(menuItems.value.map(item => item.category))]
-      
-      // モックデータ
-      menuItems.value = [
-        {
-          id: '1',
-          name: 'マルゲリータピザ',
-          description: 'トマトソース、モッツァレラチーズ、バジル',
-          price: 1500,
-          category: 'ピザ',
-          isAvailable: true,
-          ingredients: ['トマト', 'モッツァレラチーズ', 'バジル'],
-          allergens: ['乳製品']
-        },
-        {
-          id: '2',
-          name: 'カルボナーラ',
-          description: 'クリーミーな卵黄ソース、パンチェッタ、パルメザンチーズ',
-          price: 1200,
-          category: 'パスタ',
-          isAvailable: true,
-          ingredients: ['パスタ', '卵', 'パンチェッタ', 'パルメザンチーズ'],
-          allergens: ['卵', '乳製品']
-        }
-      ]
-      categories.value = ['ピザ', 'パスタ']
-    } catch (err) {
-      error.value = 'メニューの取得に失敗しました'
-      console.error(err)
+      // APIコール（スタブ）
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      menuItems.value = MOCK_MENU_ITEMS
+      categories.value = MOCK_CATEGORIES
+    } catch (e) {
+      error.value = '商品の取得に失敗しました'
+      console.error(e)
     } finally {
       isLoading.value = false
     }
@@ -65,9 +86,10 @@ export const useMenuStore = defineStore('menu', () => {
     categories,
     isLoading,
     error,
+    searchQuery,
     availableMenuItems,
+    searchResults,
     getMenuItemsByCategory,
-    getMenuItemById,
     fetchMenuItems
   }
 }) 
