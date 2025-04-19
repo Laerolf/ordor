@@ -1,70 +1,97 @@
 import { defineStore } from 'pinia';
-import { Order, OrderItem, OrderStatus } from '@/types/order';
-import { MenuItem } from '@/types/menu';
+import type { MenuItem } from '@/types/menu';
+
+interface OrderItem {
+  menuItem: MenuItem;
+  quantity: number;
+  tableNumber: string;
+}
 
 interface OrderState {
-  currentOrder: Order | null;
-  orderHistory: Order[];
+  items: OrderItem[];
+  currentTableNumber: string | null;
 }
 
 export const useOrderStore = defineStore('order', {
   state: (): OrderState => ({
-    currentOrder: null,
-    orderHistory: [],
+    items: [],
+    currentTableNumber: null,
   }),
 
   getters: {
-    activeOrders: (state) => {
-      return state.orderHistory.filter(order => order.status !== OrderStatus.PAID);
+    totalItems: (state) => {
+      return state.items.reduce((total, item) => total + item.quantity, 0);
     },
+    
+    totalAmount: (state) => {
+      return state.items.reduce((total, item) => {
+        return total + (item.menuItem.price * item.quantity);
+      }, 0);
+    },
+    
+    itemsByTable: (state) => {
+      const tableGroups: Record<string, OrderItem[]> = {};
+      
+      state.items.forEach(item => {
+        if (!tableGroups[item.tableNumber]) {
+          tableGroups[item.tableNumber] = [];
+        }
+        tableGroups[item.tableNumber].push(item);
+      });
+      
+      return tableGroups;
+    }
   },
 
   actions: {
-    createOrder(tableNumber: number) {
-      this.currentOrder = {
-        id: Date.now().toString(),
-        tableNumber,
-        items: [],
-        createdAt: new Date(),
-        status: OrderStatus.NEW,
-        totalAmount: 0,
-      };
+    setTableNumber(tableNumber: string) {
+      this.currentTableNumber = tableNumber;
     },
-
-    addItemToOrder(menuItem: MenuItem, quantity: number, specialRequests?: string) {
-      if (!this.currentOrder) return;
-
-      const orderItem: OrderItem = {
-        menuItem,
-        quantity,
-        specialRequests,
-      };
-
-      this.currentOrder.items.push(orderItem);
-      this.updateTotalAmount();
-    },
-
-    updateTotalAmount() {
-      if (!this.currentOrder) return;
+    
+    addItem(menuItem: MenuItem, quantity: number = 1) {
+      if (!this.currentTableNumber) {
+        throw new Error('テーブル番号が設定されていません');
+      }
       
-      this.currentOrder.totalAmount = this.currentOrder.items.reduce(
-        (total, item) => total + (item.menuItem.price * item.quantity),
-        0
+      const existingItem = this.items.find(
+        item => item.menuItem.id === menuItem.id && item.tableNumber === this.currentTableNumber
       );
-    },
-
-    submitOrder() {
-      if (!this.currentOrder) return;
-
-      this.orderHistory.push(this.currentOrder);
-      this.currentOrder = null;
-    },
-
-    updateOrderStatus(orderId: string, status: OrderStatus) {
-      const order = this.orderHistory.find(o => o.id === orderId);
-      if (order) {
-        order.status = status;
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        this.items.push({
+          menuItem,
+          quantity,
+          tableNumber: this.currentTableNumber
+        });
       }
     },
-  },
+    
+    removeItem(menuItemId: string, tableNumber: string) {
+      this.items = this.items.filter(
+        item => !(item.menuItem.id === menuItemId && item.tableNumber === tableNumber)
+      );
+    },
+    
+    updateQuantity(menuItemId: string, tableNumber: string, quantity: number) {
+      const item = this.items.find(
+        item => item.menuItem.id === menuItemId && item.tableNumber === tableNumber
+      );
+      
+      if (item) {
+        item.quantity = quantity;
+      }
+    },
+    
+    clearCart(tableNumber: string) {
+      this.items = this.items.filter(item => item.tableNumber !== tableNumber);
+    },
+    
+    submitOrder(tableNumber: string) {
+      // TODO: APIを呼び出して注文を送信
+      console.log('注文を送信:', this.itemsByTable[tableNumber]);
+      this.clearCart(tableNumber);
+    }
+  }
 }); 

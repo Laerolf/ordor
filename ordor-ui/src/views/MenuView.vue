@@ -50,11 +50,13 @@
 import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMenuStore } from '@/stores/menuStore';
+import { useOrderStore } from '@/stores/orderStore';
 import { MenuCategory } from '@/types/menu';
 import type { MenuItem } from '@/types/menu';
 
 const router = useRouter();
 const menuStore = useMenuStore();
+const orderStore = useOrderStore();
 
 const { categories, filteredItems } = menuStore;
 const selectedCategory = computed(() => menuStore.$state.selectedCategory);
@@ -63,7 +65,7 @@ onMounted(() => {
   menuStore.setMockData();
 });
 
-const selectCategory = (category: MenuCategory | null) => {
+const selectCategory = (category: MenuCategory) => {
   menuStore.setSelectedCategory(category);
 };
 
@@ -81,8 +83,9 @@ const addToOrder = (item: MenuItem) => {
   // テーブル番号の入力を促すダイアログを表示
   const tableNumber = prompt('テーブル番号を入力してください');
   if (tableNumber) {
-    // TODO: 注文情報をストアに追加
-    router.push(`/order/${tableNumber}`);
+    orderStore.setTableNumber(tableNumber);
+    orderStore.addItem(item);
+    router.push('/order');
   }
 };
 
