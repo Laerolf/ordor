@@ -14,12 +14,12 @@ export const useMenuStore = defineStore('menu', {
   }),
 
   getters: {
-    filteredItems: (state) => {
+    filteredItems: (state: MenuState) => {
       if (!state.selectedCategory) return state.items;
       return state.items.filter(item => item.category === state.selectedCategory);
     },
     
-    categories: (state) => {
+    categories: () => {
       return Object.values(MenuCategory);
     }
   },
